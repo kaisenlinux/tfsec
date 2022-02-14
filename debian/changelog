@@ -1,0 +1,5 @@
+tfsec (1.1.5-1kaisen) kaisen-packages; urgency=medium
+
+  * First packaging for Kaisen Linux
+
+ -- Kevin Chevreuil - Kaisen <kaisen@kaisenlinux.org>  Mon, 14 Feb 2022 00:56:18 +0100
