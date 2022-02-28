@@ -1,7 +1,7 @@
 Author: Kevin Chevreuil - Kaisen <kaisen@kaisenlinux.org>
 
---- tfsec-1.1.5.orig/scripts/build.sh
-+++ tfsec-1.1.5/scripts/build.sh
+--- tfsec-1.4.2.orig/scripts/build.sh
++++ tfsec-1.4.2/scripts/build.sh
 @@ -7,12 +7,5 @@ export CGO_ENABLED=0
  export GOFLAGS=-mod=vendor
  args=(-ldflags "-X github.com/aquasecurity/tfsec/version.Version=${TAG} -s -w -extldflags '-fno-PIC -static'")
