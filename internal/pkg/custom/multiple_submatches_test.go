@@ -3,8 +3,8 @@ package custom
 import (
 	"testing"
 
-	"github.com/aquasecurity/defsec/providers"
-	"github.com/aquasecurity/defsec/rules"
+	"github.com/aquasecurity/defsec/pkg/providers"
+	"github.com/aquasecurity/defsec/pkg/scan"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -63,7 +63,7 @@ resource "aws_instance" "bastion" {
 }
 `)
 	customResults := filterCustomResults(scanResults)
-	assert.Len(t, customResults, 0)
+	assert.Len(t, customResults.GetFailed(), 0)
 }
 
 func TestInstanceMetadataEndpointMissing(t *testing.T) {
@@ -90,8 +90,8 @@ resource "aws_instance" "bastion" {
 	assert.Len(t, customResults, 1)
 }
 
-func filterCustomResults(scanResults []rules.Result) []rules.Result {
-	var customResults []rules.Result
+func filterCustomResults(scanResults []scan.Result) scan.Results {
+	var customResults []scan.Result
 	for _, result := range scanResults {
 		if result.Rule().Provider.DisplayName() == providers.CustomProvider.DisplayName() {
 			customResults = append(customResults, result)

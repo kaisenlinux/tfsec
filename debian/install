@@ -1,1 +1,3 @@
 tfsec.png usr/share/pixmaps
+obj-x86_64-linux-gnu/tfsec usr/bin
+obj-x86_64-linux-gnu/tfsec-checkgen usr/bin

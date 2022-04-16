@@ -8,11 +8,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/aquasecurity/defsec/severity"
+	"github.com/aquasecurity/defsec/pkg/severity"
 	"gopkg.in/yaml.v2"
 )
 
 type Config struct {
+	MinimumSeverity        string            `json:"minimum_severity,omitempty" yaml:"minimum_severity,omitempty"`
 	SeverityOverrides      map[string]string `json:"severity_overrides,omitempty" yaml:"severity_overrides,omitempty"`
 	ExcludedChecks         []string          `json:"exclude,omitempty" yaml:"exclude,omitempty"`
 	IncludedChecks         []string          `json:"include,omitempty" yaml:"include,omitempty"`

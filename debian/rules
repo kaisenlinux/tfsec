@@ -2,45 +2,21 @@
 
 export GOPATH=$(CURDIR)/obj-x86_64-linux-gnu
 export DEB_BUILD_OPTIONS=nocheck
+export GO111MODULE=on
 
 %:
 	dh $@ --buildsystem=golang
 
 override_dh_auto_build:
-	#Build
-	go get ./...
 	go mod vendor
 	make build
-	#Generate documentation
-	tfsec-docs
+	make generate-docs
+	make publish-docs
 
 override_dh_auto_install:
 	dh_auto_install -- --no-source
 	mkdir -p $(CURDIR)/debian/tfsec/usr/share/bash-completion/completions $(CURDIR)/debian/tfsec/usr/share/zsh/vendor-completions
 	$(CURDIR)/obj-x86_64-linux-gnu/tfsec-checkgen completion bash > $(CURDIR)/debian/tfsec/usr/share/bash-completion/completions/tfsec-checkgen
 	$(CURDIR)/obj-x86_64-linux-gnu/tfsec-checkgen completion zsh > $(CURDIR)/debian/tfsec/usr/share/zsh/vendor-completions/_tfsec-checkgen
-	rm $(CURDIR)/debian/tfsec/usr/bin/ansi-mgutz
-	rm $(CURDIR)/debian/tfsec/usr/bin/arraylist
-	rm $(CURDIR)/debian/tfsec/usr/bin/arraystack
-	rm $(CURDIR)/debian/tfsec/usr/bin/avltree
-	rm $(CURDIR)/debian/tfsec/usr/bin/binaryheap
-	rm $(CURDIR)/debian/tfsec/usr/bin/btree
-	rm $(CURDIR)/debian/tfsec/usr/bin/customcomparator
-	rm $(CURDIR)/debian/tfsec/usr/bin/doublylinkedlist
-	rm $(CURDIR)/debian/tfsec/usr/bin/enumerablewithindex
-	rm $(CURDIR)/debian/tfsec/usr/bin/enumerablewithkey
-	rm $(CURDIR)/debian/tfsec/usr/bin/hashbidimap
-	rm $(CURDIR)/debian/tfsec/usr/bin/hashmap
-	rm $(CURDIR)/debian/tfsec/usr/bin/hashset
-	rm $(CURDIR)/debian/tfsec/usr/bin/iteratorwithindex
-	rm $(CURDIR)/debian/tfsec/usr/bin/iteratorwithkey
-	rm $(CURDIR)/debian/tfsec/usr/bin/linkedhashmap
-	rm $(CURDIR)/debian/tfsec/usr/bin/linkedhashset
-	rm $(CURDIR)/debian/tfsec/usr/bin/linkedliststack
-	rm $(CURDIR)/debian/tfsec/usr/bin/redblacktree
-	rm $(CURDIR)/debian/tfsec/usr/bin/singlylinkedlist
-	rm $(CURDIR)/debian/tfsec/usr/bin/sort
-	rm $(CURDIR)/debian/tfsec/usr/bin/treebidimap
-	rm $(CURDIR)/debian/tfsec/usr/bin/treemap
-	rm $(CURDIR)/debian/tfsec/usr/bin/treeset
-	rm $(CURDIR)/debian/tfsec/usr/bin/tfsec-docs
+
+oveeride_dh_dwz:

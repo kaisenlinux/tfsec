@@ -11,8 +11,7 @@ XS-Go-Import-Path: github.com/aquasecurity/tfsec
 
 Package: tfsec
 Architecture: amd64 arm64
-Depends: ${shlibs:Depends},
-	 ${misc:Depends},
-	 ${shlibs:Depends},
+Depends: ${misc:Depends},
 	 golang-go (>= 1.17),
+Suggests: terraform
 Description: Security scanner for your Terraform code

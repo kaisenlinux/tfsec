@@ -7,7 +7,7 @@ import (
 
 	"github.com/liamg/tml"
 
-	"github.com/aquasecurity/tfsec/pkg/scanner"
+	scanner "github.com/aquasecurity/defsec/pkg/scanners/terraform"
 )
 
 func printMetrics(w io.Writer, metrics scanner.Metrics) {
@@ -21,14 +21,15 @@ func printMetrics(w io.Writer, metrics scanner.Metrics) {
 	_, _ = fmt.Fprintf(w, "\n")
 
 	printTitle(w, "counts")
-	printValue(w, "blocks", fmt.Sprintf("%d", metrics.Parser.Counts.Blocks))
-	printValue(w, "modules", fmt.Sprintf("%d", metrics.Parser.Counts.Modules))
-	printValue(w, "files", fmt.Sprintf("%d", metrics.Parser.Counts.Files))
+	printValue(w, "modules downloaded", fmt.Sprintf("%d", metrics.Parser.Counts.ModuleDownloads))
+	printValue(w, "modules processed", fmt.Sprintf("%d", metrics.Parser.Counts.Modules))
+	printValue(w, "blocks processed", fmt.Sprintf("%d", metrics.Parser.Counts.Blocks))
+	printValue(w, "files read", fmt.Sprintf("%d", metrics.Parser.Counts.Files))
 	_, _ = fmt.Fprintf(w, "\n")
 
 	printTitle(w, "results")
+	printValue(w, "passed", fmt.Sprintf("%d", metrics.Executor.Counts.Passed))
 	printValue(w, "ignored", fmt.Sprintf("%d", metrics.Executor.Counts.Ignored))
-	printValue(w, "excluded", fmt.Sprintf("%d", metrics.Executor.Counts.Excluded))
 	printValue(w, "critical", fmt.Sprintf("%d", metrics.Executor.Counts.Critical))
 	printValue(w, "high", fmt.Sprintf("%d", metrics.Executor.Counts.High))
 	printValue(w, "medium", fmt.Sprintf("%d", metrics.Executor.Counts.Medium))

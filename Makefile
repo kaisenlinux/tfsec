@@ -38,11 +38,11 @@ tagger:
 .PHONY: typos
 typos:
 	which codespell || pip install codespell
-	codespell -S .terraform,.git,go.sum --ignore-words .codespellignore -f
+	codespell -S _examples,.tfsec,.terraform,.git,go.sum --ignore-words .codespellignore -f
 
 .PHONY: quality
 quality:
-	which golangci-lint || go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.43.0
+	which golangci-lint || go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.44.2
 	golangci-lint run
 
 .PHONY: fix-typos
@@ -54,16 +54,8 @@ fix-typos:
 clone-image-github:
 	./scripts/clone-images.sh ghcr.io/aquasecurity
 
-.PHONY: clone-image-tfsec
-clone-image-tfsec:
-	./scripts/clone-images.sh tfsec
-
-.PHONY: sanity
-sanity: test
-	go run ./cmd/tfsec -s -p --force-all-dirs ./_examples > /dev/null
-
 .PHONY: pr-ready
-pr-ready: quality sanity typos
+pr-ready: quality typos
 
 .PHONY: bench
 bench:
@@ -74,3 +66,8 @@ bench:
 mkdocs-serve:
 	docker build -t $(MKDOCS_IMAGE) -f docs/Dockerfile docs
 	docker  run --name mkdocs-serve --rm -v $(PWD):/docs -p $(MKDOCS_PORT):8000 $(MKDOCS_IMAGE)
+
+.PHONY: update-defsec
+update-defsec:
+	go get github.com/aquasecurity/defsec@latest
+
