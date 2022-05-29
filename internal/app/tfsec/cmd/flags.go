@@ -54,6 +54,7 @@ var regoPolicyDir string
 var printRegoInput bool
 var noModuleDownloads bool
 var regoOnly bool
+var codeTheme string
 
 func configureFlags(cmd *cobra.Command) {
 
@@ -65,7 +66,7 @@ func configureFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&showVersion, "version", "v", false, "Show version information and exit")
 	cmd.Flags().BoolVar(&runUpdate, "update", false, "Update to latest version")
 	cmd.Flags().BoolVar(&migrateIgnores, "migrate-ignores", false, "Migrate ignore codes to the new ID structure")
-	cmd.Flags().StringVarP(&format, "format", "f", "lovely", "Select output format: lovely, json, csv, checkstyle, junit, sarif. To use multiple formats, separate with a comma and specify a base output filename with --out. A file will be written for each type. The first format will additionally be written stdout.")
+	cmd.Flags().StringVarP(&format, "format", "f", "lovely", "Select output format: lovely, json, csv, checkstyle, junit, sarif, text, gif. To use multiple formats, separate with a comma and specify a base output filename with --out. A file will be written for each type. The first format will additionally be written stdout.")
 	cmd.Flags().StringVarP(&excludedRuleIDs, "exclude", "e", "", "Provide comma-separated list of rule IDs to exclude from run.")
 	cmd.Flags().StringVar(&filterResults, "filter-results", "", "Filter results to return specific checks only (supports comma-delimited input).")
 	cmd.Flags().BoolVarP(&softFail, "soft-fail", "s", false, "Runs checks but suppresses error code")
@@ -91,6 +92,7 @@ func configureFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&printRegoInput, "print-rego-input", false, "Print a JSON representation of the input supplied to rego policies.")
 	cmd.Flags().BoolVar(&noModuleDownloads, "no-module-downloads", false, "Do not download remote modules.")
 	cmd.Flags().BoolVar(&regoOnly, "rego-only", false, "Run rego policies exclusively.")
+	cmd.Flags().StringVar(&codeTheme, "code-theme", "dark", "Theme for annotated code. Either 'light' or 'dark'.")
 
 	_ = cmd.Flags().MarkHidden("allow-checks-to-panic")
 }
@@ -159,7 +161,7 @@ func configureOptions(cmd *cobra.Command, fsRoot, dir string) ([]options.Scanner
 		options.ScannerWithPolicyNamespaces("custom"),
 		scanner.ScannerWithDownloadsAllowed(!noModuleDownloads),
 		scanner.ScannerWithRegoOnly(regoOnly),
-		scanner.ScannerWithEmbeddedLibraries(true),
+		options.ScannerWithEmbeddedPolicies(true),
 	)
 
 	if len(excludePaths) > 0 {

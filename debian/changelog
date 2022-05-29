@@ -1,3 +1,10 @@
+tfsec (1.21.2-1kaisen) kaisen-packages; urgency=medium
+
+  * Import 1.21.2 version
+  * Update version number quilt patch
+
+ -- Kevin Chevreuil - Kaisen <kaisen@kaisenlinux.org>  Sun, 29 May 2022 23:33:22 +0100
+
 tfsec (1.19.1-1kaisen) kaisen-packages; urgency=medium
 
   * Import 1.19.1 version
