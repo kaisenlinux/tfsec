@@ -55,6 +55,7 @@ var printRegoInput bool
 var noModuleDownloads bool
 var regoOnly bool
 var codeTheme string
+var noCode bool
 
 func configureFlags(cmd *cobra.Command) {
 
@@ -93,6 +94,7 @@ func configureFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&noModuleDownloads, "no-module-downloads", false, "Do not download remote modules.")
 	cmd.Flags().BoolVar(&regoOnly, "rego-only", false, "Run rego policies exclusively.")
 	cmd.Flags().StringVar(&codeTheme, "code-theme", "dark", "Theme for annotated code. Either 'light' or 'dark'.")
+	cmd.Flags().BoolVar(&noCode, "no-code", false, "Don't include the code snippets in the output.")
 
 	_ = cmd.Flags().MarkHidden("allow-checks-to-panic")
 }
@@ -165,6 +167,7 @@ func configureOptions(cmd *cobra.Command, fsRoot, dir string) ([]options.Scanner
 	)
 
 	if len(excludePaths) > 0 {
+		excludePaths = explodeGlob(excludePaths, fsRoot, dir)
 		scannerOptions = append(scannerOptions, scanner.ScannerWithResultsFilter(excludeFunc(excludePaths)))
 	}
 
@@ -217,6 +220,24 @@ func configureOptions(cmd *cobra.Command, fsRoot, dir string) ([]options.Scanner
 	}
 
 	return applyConfigFiles(scannerOptions, dir)
+}
+
+func explodeGlob(paths []string, root string, dir string) []string {
+	var exploded []string
+
+	for _, path := range paths {
+		if !strings.Contains(path, "*") {
+			exploded = append(exploded, path)
+			continue
+		}
+		if globPaths, err := filepath.Glob(filepath.Join(dir, path)); err == nil {
+			for _, globPath := range globPaths {
+				exploded = append(exploded, strings.TrimPrefix(globPath, root))
+			}
+		}
+	}
+
+	return exploded
 }
 
 func applyConfigFiles(options []options.ScannerOption, dir string) ([]options.ScannerOption, error) {
