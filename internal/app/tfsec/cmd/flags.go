@@ -3,13 +3,16 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/aquasecurity/defsec/pkg/scanners/options"
-
 	"github.com/aquasecurity/tfsec/internal/pkg/custom"
+	"github.com/google/uuid"
 
 	"github.com/aquasecurity/defsec/pkg/scan"
 
@@ -34,7 +37,9 @@ var tfvarsPaths []string
 var excludePaths []string
 var outputFlag string
 var customCheckDir string
+var customCheckUrl string
 var configFile string
+var configFileUrl string
 var conciseOutput bool
 var excludeDownloaded bool
 var includePassed bool
@@ -75,8 +80,11 @@ func configureFlags(cmd *cobra.Command) {
 	cmd.Flags().StringSliceVar(&tfvarsPaths, "var-file", nil, "Path to .tfvars file, can be used multiple times and evaluated in order of specification (same functionaility as --tfvars-file but consistent with Terraform)")
 	cmd.Flags().StringSliceVar(&excludePaths, "exclude-path", nil, "Folder path to exclude, can be used multiple times and evaluated in order of specification")
 	cmd.Flags().StringVarP(&outputFlag, "out", "O", "", "Set output file. This filename will have a format descriptor appended if multiple formats are specified with --format")
-	cmd.Flags().StringVar(&customCheckDir, "custom-check-dir", "", "Explicitly the custom checks dir location")
+	cmd.Flags().StringVar(&customCheckDir, "custom-check-dir", "", "Explicitly set the custom checks dir location")
+	cmd.Flags().StringVar(&customCheckUrl, "custom-check-url", "",
+		"Download a custom check file from a remote location. Must be json or yaml")
 	cmd.Flags().StringVar(&configFile, "config-file", "", "Config file to use during run")
+	cmd.Flags().StringVar(&configFileUrl, "config-file-url", "", "Config file to download from a remote location. Must be json or yaml")
 	cmd.Flags().BoolVar(&debug, "debug", false, "Enable debug logging (same as verbose)")
 	cmd.Flags().BoolVar(&debug, "verbose", false, "Enable verbose logging (same as debug)")
 	cmd.Flags().BoolVar(&conciseOutput, "concise-output", false, "Reduce the amount of output and no statistics")
@@ -241,6 +249,12 @@ func explodeGlob(paths []string, root string, dir string) []string {
 }
 
 func applyConfigFiles(options []options.ScannerOption, dir string) ([]options.ScannerOption, error) {
+	if configFileUrl != "" {
+		if remoteConfigDownloaded() {
+			defer func() { _ = os.Remove(configFile) }()
+		}
+	}
+
 	if configFile == "" {
 		configDir := filepath.Join(dir, ".tfsec")
 		for _, filename := range []string{"config.json", "config.yml", "config.yaml"} {
@@ -251,6 +265,7 @@ func applyConfigFiles(options []options.ScannerOption, dir string) ([]options.Sc
 			}
 		}
 	}
+
 	if configFile != "" {
 		if conf, err := config.LoadConfig(configFile); err == nil {
 			if !minVersionSatisfied(conf) {
@@ -270,6 +285,17 @@ func applyConfigFiles(options []options.ScannerOption, dir string) ([]options.Sc
 			}
 		}
 	}
+
+	return configureCustomChecks(options, dir)
+}
+
+func configureCustomChecks(options []options.ScannerOption, dir string) ([]options.ScannerOption, error) {
+	if customCheckUrl != "" {
+		if remoteCustomCheckDownloaded() {
+			defer func() { _ = os.RemoveAll(customCheckDir) }()
+		}
+	}
+
 	if customCheckDir == "" {
 		customCheckDir = filepath.Join(dir, ".tfsec")
 	}
@@ -277,4 +303,52 @@ func applyConfigFiles(options []options.ScannerOption, dir string) ([]options.Sc
 		return nil, fmt.Errorf("failed to load custom checks from %s: %w", customCheckDir, err)
 	}
 	return options, nil
+}
+
+func remoteConfigDownloaded() bool {
+	tempFile := filepath.Join(os.TempDir(), filepath.Base(configFileUrl))
+
+	/* #nosec */
+	resp, err := http.Get(configFileUrl)
+	if err != nil || resp.StatusCode != http.StatusOK {
+		return false
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	configContent, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return false
+	}
+
+	if err := ioutil.WriteFile(tempFile, configContent, os.ModePerm); err != nil {
+		return false
+	}
+	configFile = tempFile
+	return true
+}
+
+func remoteCustomCheckDownloaded() bool {
+	customTempDir, err := ioutil.TempDir(os.TempDir(), fmt.Sprintf("tfsec_custom_check_%s", uuid.NewString()))
+	if err != nil {
+		return false
+	}
+	tempFile := filepath.Join(customTempDir, filepath.Base(customCheckUrl))
+
+	/* #nosec */
+	resp, err := http.Get(customCheckUrl)
+	if err != nil || resp.StatusCode != http.StatusOK {
+		return false
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	customCheckContent, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return false
+	}
+
+	if err := ioutil.WriteFile(tempFile, customCheckContent, os.ModePerm); err != nil {
+		return false
+	}
+	customCheckDir = customTempDir
+	return true
 }
