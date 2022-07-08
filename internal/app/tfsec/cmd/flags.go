@@ -72,7 +72,7 @@ func configureFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&showVersion, "version", "v", false, "Show version information and exit")
 	cmd.Flags().BoolVar(&runUpdate, "update", false, "Update to latest version")
 	cmd.Flags().BoolVar(&migrateIgnores, "migrate-ignores", false, "Migrate ignore codes to the new ID structure")
-	cmd.Flags().StringVarP(&format, "format", "f", "lovely", "Select output format: lovely, json, csv, checkstyle, junit, sarif, text, gif. To use multiple formats, separate with a comma and specify a base output filename with --out. A file will be written for each type. The first format will additionally be written stdout.")
+	cmd.Flags().StringVarP(&format, "format", "f", "lovely", "Select output format: lovely, json, csv, checkstyle, junit, sarif, text, markdown, html, gif. To use multiple formats, separate with a comma and specify a base output filename with --out. A file will be written for each type. The first format will additionally be written stdout.")
 	cmd.Flags().StringVarP(&excludedRuleIDs, "exclude", "e", "", "Provide comma-separated list of rule IDs to exclude from run.")
 	cmd.Flags().StringVar(&filterResults, "filter-results", "", "Filter results to return specific checks only (supports comma-delimited input).")
 	cmd.Flags().BoolVarP(&softFail, "soft-fail", "s", false, "Runs checks but suppresses error code")
@@ -261,6 +261,7 @@ func applyConfigFiles(options []options.ScannerOption, dir string) ([]options.Sc
 			path := filepath.Join(configDir, filename)
 			if _, err := os.Stat(path); err == nil {
 				configFile = path
+				logger.Log("Found default config file at %s", configFile)
 				break
 			}
 		}
@@ -268,6 +269,7 @@ func applyConfigFiles(options []options.ScannerOption, dir string) ([]options.Sc
 
 	if configFile != "" {
 		if conf, err := config.LoadConfig(configFile); err == nil {
+			logger.Log("Loaded config file at %s", configFile)
 			if !minVersionSatisfied(conf) {
 				return nil, fmt.Errorf("minimum tfsec version requirement not satisfied")
 			}
@@ -283,6 +285,8 @@ func applyConfigFiles(options []options.ScannerOption, dir string) ([]options.Sc
 			if len(conf.ExcludedChecks) > 0 {
 				options = append(options, scanner.ScannerWithExcludedRules(append(conf.ExcludedChecks, excludedRuleIDs)))
 			}
+		} else {
+			logger.Log("Failed to load config file: %s", err)
 		}
 	}
 

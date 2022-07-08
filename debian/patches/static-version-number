@@ -7,7 +7,7 @@ Author: Kevin Chevreuil - Kaisen <kaisen@kaisenlinux.org>
  BINARY=tfsec
  CHECK_GEN_BINARY=tfsec-checkgen
 -TAG=${TRAVIS_TAG:-development}
-+TAG=1.23.2
++TAG=1.26.3
  GO111MODULE=on
  export CGO_ENABLED=0
  export GOFLAGS=-mod=vendor

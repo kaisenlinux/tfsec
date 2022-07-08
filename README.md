@@ -7,7 +7,7 @@
 [![Docker Build](https://img.shields.io/docker/v/tfsec/tfsec?label=docker)](https://hub.docker.com/r/tfsec/tfsec)
 [![Homebrew](https://img.shields.io/badge/dynamic/json.svg?url=https://formulae.brew.sh/api/formula/tfsec.json&query=$.versions.stable&label=homebrew)](https://formulae.brew.sh/formula/tfsec)
 [![Chocolatey](https://img.shields.io/chocolatey/v/tfsec)](https://chocolatey.org/packages/tfsec)
-[![AUR version](https://img.shields.io/aur/version/tfsec)](https://aur.archlinux.org/packages/tfsec)
+[![AUR version](https://img.shields.io/aur/version/tfsec-bin)](https://aur.archlinux.org/packages/tfsec-bin)
 [![VScode Extension](https://img.shields.io/visual-studio-marketplace/v/tfsec.tfsec?label=vscode)](https://marketplace.visualstudio.com/items?itemName=tfsec.tfsec)
 
 tfsec uses static analysis of your terraform code to spot potential misconfigurations.
@@ -110,6 +110,10 @@ A Visual Studio Code extension is being developed to integrate with tfsec result
 ## Use as GitHub Action
 
 If you want to run tfsec on your repository as a GitHub Action, you can use [https://github.com/aquasecurity/tfsec-pr-commenter-action](https://github.com/aquasecurity/tfsec-pr-commenter-action).
+
+## Use as an Azure DevOps Pipelines Task
+
+You can now install the [official tfsec task](https://marketplace.visualstudio.com/items?itemName=AquaSecurityOfficial.tfsec-official). Please raise any issues/feature requests on the [task repository](https://github.com/aquasecurity/tfsec-azure-pipelines-task).
 
 ## Ignoring Warnings
 
