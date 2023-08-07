@@ -1,3 +1,10 @@
+tfsec (1.28.1-2kaisen) kaisen-packages; urgency=medium
+
+  * Remove golang-go as package dependancy
+  * Bump the golang-go version required to build
+
+ -- Kevin Chevreuil - Kaisen <kaisen@kaisenlinux.org>  Mon, 07 Aug 2023 21:46:42 +0100
+
 tfsec (1.28.1-1kaisen) kaisen-packages; urgency=medium
 
   * Import 1.28.1 version
