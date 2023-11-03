@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -17,6 +16,8 @@ import (
 	"github.com/aquasecurity/defsec/pkg/scan"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 
 	scanner "github.com/aquasecurity/defsec/pkg/scanners/terraform"
 	"github.com/aquasecurity/defsec/pkg/severity"
@@ -64,6 +65,11 @@ var codeTheme string
 var noCode bool
 
 func configureFlags(cmd *cobra.Command) {
+	v := viper.New()
+	v.SetEnvPrefix("TFSEC")
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+	v.SetTypeByDefaultValue(true)
 
 	cmd.Flags().BoolVar(&singleThreadedMode, "single-thread", false, "Run checks using a single thread")
 	cmd.Flags().BoolVarP(&disableGrouping, "disable-grouping", "G", false, "Disable grouping of similar results")
@@ -107,6 +113,25 @@ func configureFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&noCode, "no-code", false, "Don't include the code snippets in the output.")
 
 	_ = cmd.Flags().MarkHidden("allow-checks-to-panic")
+
+	bindFlags(cmd, v)
+}
+
+// Bind each cobra flag to its associated viper configuration (config file and environment variable)
+func bindFlags(cmd *cobra.Command, v *viper.Viper) {
+	cmd.Flags().VisitAll(func(f *pflag.Flag) {
+		// Determine the naming convention of the flags when represented in the config file
+		configName := f.Name
+
+		// Apply the viper config value to the flag when the flag is not set and viper has a value
+		if !f.Changed && v.IsSet(configName) {
+			val := v.Get(configName)
+			err := cmd.Flags().Set(f.Name, fmt.Sprintf("%v", val))
+			if err != nil {
+				logger.Log("failed to set %v with %v", f.Name, val)
+			}
+		}
+	})
 }
 
 func makePathsRelativeToFSRoot(fsRoot string, paths []string) ([]string, error) {
@@ -330,7 +355,7 @@ func remoteConfigDownloaded() bool {
 		return false
 	}
 
-	if err := ioutil.WriteFile(tempFile, configContent, os.ModePerm); err != nil {
+	if err := os.WriteFile(tempFile, configContent, os.ModePerm); err != nil {
 		return false
 	}
 	configFile = tempFile
@@ -338,7 +363,7 @@ func remoteConfigDownloaded() bool {
 }
 
 func remoteCustomCheckDownloaded() bool {
-	customTempDir, err := ioutil.TempDir(os.TempDir(), fmt.Sprintf("tfsec_custom_check_%s", uuid.NewString()))
+	customTempDir, err := os.MkdirTemp(os.TempDir(), fmt.Sprintf("tfsec_custom_check_%s", uuid.NewString()))
 	if err != nil {
 		return false
 	}
@@ -356,7 +381,7 @@ func remoteCustomCheckDownloaded() bool {
 		return false
 	}
 
-	if err := ioutil.WriteFile(tempFile, customCheckContent, os.ModePerm); err != nil {
+	if err := os.WriteFile(tempFile, customCheckContent, os.ModePerm); err != nil {
 		return false
 	}
 	customCheckDir = customTempDir
