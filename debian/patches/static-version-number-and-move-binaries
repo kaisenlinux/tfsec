@@ -1,13 +1,13 @@
 Author: Kevin Chevreuil - Kaisen <kaisen@kaisenlinux.org>
 
---- tfsec-1.28.4.orig/scripts/build.sh
-+++ tfsec-1.28.4/scripts/build.sh
+--- tfsec-1.28.6.orig/scripts/build.sh
++++ tfsec-1.28.6/scripts/build.sh
 @@ -2,17 +2,10 @@
  
  BINARY=tfsec
  CHECK_GEN_BINARY=tfsec-checkgen
 -TAG=${TRAVIS_TAG:-development}
-+TAG=1.28.4
++TAG=1.28.6
  GO111MODULE=on
  export CGO_ENABLED=0
  args=(-ldflags "-X github.com/aquasecurity/tfsec/version.Version=${TAG} -s -w -extldflags '-fno-PIC -static'")
