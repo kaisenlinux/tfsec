@@ -1,23 +1,24 @@
 #!/usr/bin/make -f
 
-export GOPATH=$(CURDIR)/obj-x86_64-linux-gnu
+export GOPATH=$(CURDIR)/_build
 export DEB_BUILD_OPTIONS=nocheck
 export GO111MODULE=on
 
 %:
-	dh $@ --buildsystem=golang
+	dh $@ --buildsystem=golang --builddirectory=$(CURDIR)/_build
 
 override_dh_auto_clean:
-	rm -rf $(CURDIR)/obj-x86_64-linux-gnu
+	rm -rf $(CURDIR)/obj-x86_64-linux-gnu $(CURDIR)/_build
 
 override_dh_auto_build:
 	go mod vendor
 	make build
 
 override_dh_auto_install:
-	dh_auto_install -- --no-source
-	mkdir -p $(CURDIR)/debian/tfsec/usr/share/bash-completion/completions $(CURDIR)/debian/tfsec/usr/share/zsh/vendor-completions
-	$(CURDIR)/obj-x86_64-linux-gnu/tfsec-checkgen completion bash > $(CURDIR)/debian/tfsec/usr/share/bash-completion/completions/tfsec-checkgen
-	$(CURDIR)/obj-x86_64-linux-gnu/tfsec-checkgen completion zsh > $(CURDIR)/debian/tfsec/usr/share/zsh/vendor-completions/_tfsec-checkgen
+	install -p -m 0644 $(CURDIR)/tfsec.png $(CURDIR)/debian/tfsec/usr/share/pixmaps/
+	install -p -m 0755 $(CURDIR)/obj-x86_64-linux-gnu/tfsec $(CURDIR)/debian/tfsec/usr/bin/
+	install -p -m 0755 $(CURDIR)/obj-x86_64-linux-gnu/tfsec-checkgen $(CURDIR)/debian/tfsec/usr/bin/
+	$(CURDIR)/debian/tfsec/usr/bin/tfsec-checkgen completion bash > $(CURDIR)/debian/tfsec/usr/share/bash-completion/completions/tfsec-checkgen
+	$(CURDIR)/debian/tfsec/usr/bin/tfsec-checkgen completion zsh > $(CURDIR)/debian/tfsec/usr/share/zsh/vendor-completions/_tfsec-checkgen
 
 oveeride_dh_dwz:
