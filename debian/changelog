@@ -1,3 +1,10 @@
+tfsec (1.28.11-1kaisen) kaisen-packages; urgency=medium
+
+  * Import the 1.28.11 version
+  * Update the quilt patch
+
+ -- Kevin Chevreuil - Kaisen <kaisen@kaisenlinux.org>  Tue, 19 Nov 2024 14:30:27 +0200
+
 tfsec (1.28.10-1kaisen) kaisen-packages; urgency=medium
 
   * Import the 1.28.10 version
