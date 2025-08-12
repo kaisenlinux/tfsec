@@ -1,3 +1,11 @@
+tfsec (1.28.14-1kaisen) kaisen-packages; urgency=medium
+
+  * Import the 1.28.14 version
+  * Update the quilt patch
+  * Bump the golang-go version required to build
+
+ -- Kevin Chevreuil - Kaisen <kaisen@kaisenlinux.org>  Sat, 08 Aug 2025 23:43:37 +0200
+
 tfsec (1.28.13-1kaisen) kaisen-packages; urgency=medium
 
   * Import the 1.28.13 version
